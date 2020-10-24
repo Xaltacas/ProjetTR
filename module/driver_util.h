@@ -1,0 +1,11 @@
+#ifndef DRIVER_UTIL_H
+#define DRIVER_UTIL_H
+
+#define PI_PERI_PHYS 0x3F000000 // 0x20000000
+#define GPIO_BASE (PI_PERI_PHYS + 0x200000)
+#define GPIO_LEN  0xF4
+
+#define MAJOR_NUM 100
+#define IOCTL_GET_COUNT _IOR(MAJOR_NUM, 0, long *)
+
+#endif
