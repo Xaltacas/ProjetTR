@@ -26,6 +26,9 @@ i2cmotor: i2cmotor.c
 
 pigpiotest: pigpiotest.c
 	gcc -Wall -o $@ $< -lpigpio -lrt -lpthread
+	
+ADC_test : ADC_test.c ADC.c
+	gcc -Wall $^ -o $@ -lpigpio -lrt -pthread
 
 clear:
 	rm *.o cam io i2c i2cmotor pSensor pigpiotest
