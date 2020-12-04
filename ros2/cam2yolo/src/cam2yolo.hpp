@@ -58,7 +58,7 @@ int arg_max(std::vector<T, A> const& vec) {
 
 cv::Scalar get_color(int x, int max);
 
-class Cam2Image : public rclcpp::Node{
+class Cam2yolo : public rclcpp::Node{
   // https://github.com/ros2/demos/blob/master/image_tools/src/cam2image.cpp
 private:
   cv::VideoCapture cap;
@@ -83,7 +83,7 @@ private:
   // https://github.com/AlexeyAB/darknet/blob/91b5dd2da7dcb9acc69d129e504ad9ef83045c4c/src/image_opencv.cpp#L878
   void draw_detections(cv::Mat& frame, const vision_msgs::msg::Detection2DArray& msg);
 public:
-  explicit Cam2Image(const rclcpp::NodeOptions & options);
+  explicit Cam2yolo(const rclcpp::NodeOptions & options);
   
 };
 
