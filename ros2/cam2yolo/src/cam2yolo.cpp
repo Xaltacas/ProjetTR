@@ -1,16 +1,3 @@
-// Copyright 2015 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
 #include <iostream>
 #include <chrono>
@@ -23,8 +10,8 @@
 
 #include "cam2yolo.hpp"
 
-Cam2Image::Cam2Image(const rclcpp::NodeOptions & options)
-: Node("cam2image", options), publish_number_(1u)//, is_flipped_(false)
+Cam2yolo::Cam2yolo(const rclcpp::NodeOptions & options)
+: Node("Cam2yolo", options), publish_number_(1u)//, is_flipped_(false)
 {
   
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
@@ -34,9 +21,9 @@ Cam2Image::Cam2Image(const rclcpp::NodeOptions & options)
   frame_id_ = this->declare_parameter("frame_id", "camera_frame");
   
   auto qos = rclcpp::SensorDataQoS(); // https://github.com/ros2/rmw/blob/master/rmw/include/rmw/qos_profiles.h
-  pub_ = create_publisher<sensor_msgs::msg::Image>("detector_node/images", qos);
+  pub_ = create_publisher<sensor_msgs::msg::Image>("/detector_node/images", qos);
   sub_ = create_subscription<vision_msgs::msg::Detection2DArray>(
-    "detector_node/detections", qos, std::bind(&Cam2Image::detection_callback, this, std::placeholders::_1));
+    "/detector_node/detections", qos, std::bind(&Cam2yolo::detection_callback, this, std::placeholders::_1));
 
   cap.open(0);// init the cam
   cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width_));
@@ -64,15 +51,15 @@ Cam2Image::Cam2Image(const rclcpp::NodeOptions & options)
 // Start main timer loop
   timer_ = this->create_wall_timer(
     std::chrono::milliseconds(static_cast<int>(1000.0 / freq_)),
-    std::bind(&Cam2Image::timerCallback, this));
+    std::bind(&Cam2yolo::timerCallback, this));
 }
 
-void Cam2Image::detection_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg){
+void Cam2yolo::detection_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg){
   D2A_msg_ = *msg;
   subscribe_number_++;
 }
 
-void Cam2Image::timerCallback(){
+void Cam2yolo::timerCallback(){
   cap >> cam_;
   to_disp_=cam_.clone();
   draw_detections(to_disp_, D2A_msg_);
@@ -91,7 +78,7 @@ void Cam2Image::timerCallback(){
   pub_->publish(std::move(im_msg_));
 }
 
-void Cam2Image::draw_detections(cv::Mat& frame, const vision_msgs::msg::Detection2DArray& msg){
+void Cam2yolo::draw_detections(cv::Mat& frame, const vision_msgs::msg::Detection2DArray& msg){
   int imax;
   std::string id;
   double score;
