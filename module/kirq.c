@@ -143,6 +143,7 @@ static ssize_t char_write(struct file *file, const char *buf, size_t count, loff
 
 static int char_open(struct inode *inode, struct file *file){
     //printk(KERN_INFO "oPeN");
+  encoder_count=0;
   return 0;
 }
 

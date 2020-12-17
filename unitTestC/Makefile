@@ -33,6 +33,9 @@ pigpiotest: pigpiotest.c
 ADC_test : ADC_test.c
 	gcc -Wall $^ -o $@ -lpigpio -lrt -pthread
 
+PIDtest: PIDtest.c
+	gcc -Wall $^ -o $@ -pthread -lwiringPi
+
 clean:
-	rm *.o cam io i2c i2cmotor pSensor pigpiotest ADC_test
+	rm *.o cam io i2c i2cmotor pSensor pigpiotest ADC_test servotest PIDtest
 
