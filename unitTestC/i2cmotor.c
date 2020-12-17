@@ -24,15 +24,19 @@ int main(){
 		switch(com){
 		case 'd':
 			wiringPiI2CWriteReg16(fd,CW,0xFF00);
+			//printf("CW\r");
 			break;
 		case 'g':
 			wiringPiI2CWriteReg16(fd,CCW,0xFF00);
+			//printf("CCW\r");
 			break;
 		case 'b':
 			wiringPiI2CWriteReg8(fd,BRAKE,0x00);
+			//printf("BRAKE\r");
 			break;
 		case 's':
 			wiringPiI2CWriteReg8(fd,STOP,0x00);
+			//printf("STOP\r");
 			break;
 		default:
 			printf("d -> CW \ng -> CCW \nb -> BRAKE \ns -> STOP\n");

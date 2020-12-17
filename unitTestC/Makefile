@@ -15,6 +15,9 @@ cam.o : cam.cpp
 io : io.c
 	gcc -Wall -o $@ $< -lwiringPi -lpthread
 
+servotest : servotest.c
+	gcc -Wall -o $@ $< -lwiringPi -lpthread
+
 pSensor: pSensor.cpp
 	g++ -Wall -lgrovepicpp $< -o $@
 
