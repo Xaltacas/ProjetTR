@@ -15,6 +15,7 @@ Enfin,
 cd ~/dev_ws
 colcon build
 source install/setup.sh
+sudo pigpiod
 ros2 run cam2yolo cam2yolo
 ```
 
@@ -33,12 +34,12 @@ git clone -b ros2 https://github.com/ros-perception/vision_opencv.git
 - Técharger les poids: [yolov4-tiny.weights](https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights) | 
 [yolov4.weights](https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights)
 
-Il faut ensuite faire des modifications à la main pour le rendre compatible avec [AlexeyAB](https://github.com/AlexeyAB/darknet) (je n'ai pas réussi à faire fonctionner avec le répertoire officiel).
+Il faut ensuite faire des modifications pour le rendre compatible avec [AlexeyAB](https://github.com/AlexeyAB/darknet) (je n'ai pas réussi à faire fonctionner avec le répertoire officiel).
 - remplacer `darknet_vendor/CMakeLists.txt` par le CMakeLists.txt fourni, activer cuda et openCV dans le fichier si nécessaire (On|Off)
 - modifier les fichiers `detector_network.cpp` et `detector_node.cpp` avec `patch_openrobotics_darknet_ros.sh`
 ```shell
 cd ~/dev_ws/src/openrobotics_darknet_ros
-. patch_openrobotics_darknet_ros.sh
+./<PATH_TO>/patch_openrobotics_darknet_ros.sh
 ```
 Il faut également modifier manuellement `detector_node.cpp`:
 - remplacer la ligne 99 par `rclcpp::ParameterValue("<PATH_OF_yolo.cfg>"),` exemple: $HOME/dev_ws/install/darknet_vendor/share/darknet/cfg/yolov4-tiny.cfg

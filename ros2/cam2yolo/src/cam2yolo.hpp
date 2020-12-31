@@ -46,7 +46,7 @@ template <typename T, typename U>
 Member<T, U> mem_ptr(T U::*ptr) { return Member<T, U>(ptr); }
 
 template <typename T, typename A>
-int results_arg_max(std::vector<T, A> const& vec) {
+int score_arg_max(std::vector<T, A> const& vec) {
     //https://stackoverflow.com/a/5085323
   return static_cast<int>(std::distance(vec.begin(), std::max_element(vec.begin(), vec.end(), by(mem_ptr(&T::score)))));
 }
@@ -73,7 +73,9 @@ private:
   double freq_;
   size_t width_, height_, size_;
   std::string frame_id_;
-  int nclasses_=80;
+  int servo_position_[2], pi_;
+  const int servo_pins_[2], servo_limits_[2];
+  const std::string object2follow_;
   size_t publish_number_, subscribe_number_;
   //bool is_flipped_;
   
@@ -84,7 +86,7 @@ private:
   void draw_detections(cv::Mat& frame, const vision_msgs::msg::Detection2DArray& msg);
 public:
   explicit Cam2yolo(const rclcpp::NodeOptions & options);
-  
+  ~Cam2yolo();
 };
 
 #endif
