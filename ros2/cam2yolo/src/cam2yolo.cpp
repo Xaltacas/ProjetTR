@@ -18,11 +18,14 @@ Cam2yolo::~Cam2yolo(){ // turn off servos
 }
 
 Cam2yolo::Cam2yolo(const rclcpp::NodeOptions & options)
-: Node("Cam2yolo", options),servo_position_{1500, 1500}, servo_pins_{12,13}, servo_limits_{1000,2000}, object2follow_("clock")//, is_flipped_(false)
+: Node("Cam2yolo", options),servo_position_{1500, 1500}, servo_pins_{12,13}, servo_limits_{1000,2000}, object2follow_("person")//, is_flipped_(false)
 {
   if ((pi_=pigpio_start(NULL,NULL)) < 0) {
     std::cout<<"pigpio initialisation failed"<<std::endl;
   }
+  set_servo_pulsewidth(pi_, servo_pins_[0], 1500);
+  set_servo_pulsewidth(pi_, servo_pins_[1], 1500);
+  
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
   freq_ = this->declare_parameter("frequency", 15.0);
   width_ = this->declare_parameter("width", 640);
@@ -69,7 +72,7 @@ void Cam2yolo::detection_callback(const vision_msgs::msg::Detection2DArray::Shar
   
   for (auto const& detection: msg->detections) { // update servos position if the object is detected
     if (detection.results[score_arg_max(detection.results)].id == object2follow_) {
-      servo_position_[0] = std::max<int>(std::min<int>(servo_position_[0] - (detection.bbox.center.x - width_/2), servo_limits_[1]), servo_limits_[0]);
+      servo_position_[0] = std::max<int>(std::min<int>(servo_position_[0] + (detection.bbox.center.x - width_/2), servo_limits_[1]), servo_limits_[0]);
       servo_position_[1] = std::max<int>(std::min<int>(servo_position_[1] + (detection.bbox.center.y - height_/2), servo_limits_[1]), servo_limits_[0]);
       set_servo_pulsewidth(pi_, servo_pins_[0], servo_position_[0]);
       set_servo_pulsewidth(pi_, servo_pins_[1], servo_position_[1]);
