@@ -7,7 +7,7 @@ Installation des packages
 cd
 source ros2_foxy/install/setup.sh
 mkdir -p dev_ws/src && cd dev_ws/src
-git clone -b ros2 https://github.com/Kukanani/vision_msgs.git
+git clone -b foxy https://github.com/Kukanani/vision_msgs.git
 ```
 Puis, ajouter le package cam2yolo dans `src`.
 Enfin,
