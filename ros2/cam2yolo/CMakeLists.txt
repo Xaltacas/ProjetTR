@@ -25,6 +25,8 @@ find_package(std_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+link_libraries(pigpiod_if2)
+
 add_executable(cam2yolo src/main.cpp src/cam2yolo.cpp)
 ament_target_dependencies(cam2yolo
   "rclcpp"

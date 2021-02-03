@@ -1,1 +1,0 @@
-cmd_/home/pi/ProjetTR/module/kirq.ko := ld -r  -EL  --build-id  -T ./scripts/module-common.lds -T ./arch/arm/kernel/module.lds -o /home/pi/ProjetTR/module/kirq.ko /home/pi/ProjetTR/module/kirq.o /home/pi/ProjetTR/module/kirq.mod.o;  true

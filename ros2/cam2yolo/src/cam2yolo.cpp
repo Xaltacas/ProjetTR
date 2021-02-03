@@ -6,13 +6,25 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
-
+#include <pigpiod_if2.h>
 #include "cam2yolo.hpp"
 
+Cam2yolo::~Cam2yolo(){ // turn off servos
+  set_servo_pulsewidth(pi_, servo_pins_[0], 0);
+  set_servo_pulsewidth(pi_, servo_pins_[1], 0);
+  pigpio_stop(pi_);
+}
+
 Cam2yolo::Cam2yolo(const rclcpp::NodeOptions & options)
-: Node("Cam2yolo", options), publish_number_(1u)//, is_flipped_(false)
+: Node("Cam2yolo", options),servo_position_{1500, 1500}, servo_pins_{12,13}, servo_limits_{1000,2000}, object2follow_("person")//, is_flipped_(false)
 {
+  if ((pi_=pigpio_start(NULL,NULL)) < 0) {
+    std::cout<<"pigpio initialisation failed"<<std::endl;
+  }
+  set_servo_pulsewidth(pi_, servo_pins_[0], 1500);
+  set_servo_pulsewidth(pi_, servo_pins_[1], 1500);
   
   setvbuf(stdout, NULL, _IONBF, BUFSIZ);
   freq_ = this->declare_parameter("frequency", 15.0);
@@ -57,6 +69,16 @@ Cam2yolo::Cam2yolo(const rclcpp::NodeOptions & options)
 void Cam2yolo::detection_callback(const vision_msgs::msg::Detection2DArray::SharedPtr msg){
   D2A_msg_ = *msg;
   subscribe_number_++;
+  
+  for (auto const& detection: msg->detections) { // update servos position if the object is detected
+    if (detection.results[score_arg_max(detection.results)].id == object2follow_) {
+      servo_position_[0] = std::max<int>(std::min<int>(servo_position_[0] + (detection.bbox.center.x - width_/2), servo_limits_[1]), servo_limits_[0]);
+      servo_position_[1] = std::max<int>(std::min<int>(servo_position_[1] + (detection.bbox.center.y - height_/2), servo_limits_[1]), servo_limits_[0]);
+      set_servo_pulsewidth(pi_, servo_pins_[0], servo_position_[0]);
+      set_servo_pulsewidth(pi_, servo_pins_[1], servo_position_[1]);
+      break;
+    }
+  }
 }
 
 void Cam2yolo::timerCallback(){
@@ -85,10 +107,10 @@ void Cam2yolo::draw_detections(cv::Mat& frame, const vision_msgs::msg::Detection
   cv::Point pt1, pt2;
   cv::Scalar color;
   for (auto const& detection: msg.detections) {
-      imax = results_arg_max(detection.results);
+      imax = score_arg_max(detection.results);
       id = detection.results[imax].id;
       score = detection.results[imax].score;
-      color = get_color(classes.at(id) , nclasses_);
+      color = get_color(classes.at(id) , classes.size());
       pt1.x = detection.bbox.center.x - detection.bbox.size_x/2;
       pt1.y = detection.bbox.center.y - detection.bbox.size_y/2;
       pt2.x = detection.bbox.center.x + detection.bbox.size_x/2;
@@ -108,11 +130,7 @@ cv::Scalar get_color(int x, int max)
     int i = floor(ratio);
     int j = ceil(ratio);
     ratio -= i;
-    return
-                          cv::Scalar(
-                                    (1-ratio) * colors[i][0] + ratio*colors[j][0],
-                                    (1-ratio) * colors[i][1] + ratio*colors[j][1],
-                                    (1-ratio) * colors[i][2] + ratio*colors[j][2] )
-                          *256;
-
+    return cv::Scalar((1-ratio) * colors[i][0] + ratio*colors[j][0],
+                      (1-ratio) * colors[i][1] + ratio*colors[j][1],
+                      (1-ratio) * colors[i][2] + ratio*colors[j][2] )*256;
 }
