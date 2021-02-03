@@ -93,12 +93,18 @@ void *telemetre(void *arg) {
 			break;
 		}
 		else{
+			long c1 = count;
 			dist = wiringPiI2CReadReg16(grove,OFFSET+pin);
-			int index = map(count, -120, 120, 0, SIZE);
+			if(ioctl(enc,IOCTL_GET_COUNT, &count)==-1){
+				perror("read failed\n");
+				break;
+			}
+			long mc = (c1 + count)>>1;
+			int index = map(mc, -120, 120, 0, SIZE);
 			pthread_mutex_lock(&m);
 			values[index] =+ UPDATERATE*(dist-values[index]);
 			
-			printf("[%03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d ]\n",values[ 0 ], values[ 1 ], values[ 2 ], values[ 3 ], values[ 4 ], values[ 5 ], values[ 6 ], values[ 7 ], values[ 8 ], values[ 9 ], values[ 10 ], values[ 11 ], values[ 12 ], values[ 13 ], values[ 14 ], values[ 15 ], values[ 16 ], values[ 17 ], values[ 18 ], values[ 19 ], values[ 20 ], values[ 21 ], values[ 22 ], values[ 23 ], values[ 24 ], values[ 25 ], values[ 26 ], values[ 27 ], values[ 28 ], values[ 29 ]);
+			//printf("[%03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d ]\n",values[ 0 ], values[ 1 ], values[ 2 ], values[ 3 ], values[ 4 ], values[ 5 ], values[ 6 ], values[ 7 ], values[ 8 ], values[ 9 ], values[ 10 ], values[ 11 ], values[ 12 ], values[ 13 ], values[ 14 ], values[ 15 ], values[ 16 ], values[ 17 ], values[ 18 ], values[ 19 ], values[ 20 ], values[ 21 ], values[ 22 ], values[ 23 ], values[ 24 ], values[ 25 ], values[ 26 ], values[ 27 ], values[ 28 ], values[ 29 ]);
 			pthread_mutex_unlock(&m);
 
 
