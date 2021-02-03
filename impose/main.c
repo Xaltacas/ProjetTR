@@ -19,7 +19,7 @@
 #define CW 0x02 
 #define CCW 0x03
 
-#define SPEED 0x4F00
+#define SPEED 0x5800
 
 #define GROVE 0x04
 #define OFFSET 0x30
@@ -30,6 +30,7 @@
 #define SIZE 10
 #define UPDATERATE 0.5
 
+#define BORNE 120
 
 int pin = 1;
 
@@ -92,7 +93,7 @@ void *telemetre(void *arg) {
 			perror("read failed\n");
 			break;
 		}
-		else{
+		else if(sens ==1){
 			long c1 = count;
 			dist = wiringPiI2CReadReg16(grove,OFFSET+pin);
 			if(ioctl(enc,IOCTL_GET_COUNT, &count)==-1){
@@ -102,18 +103,17 @@ void *telemetre(void *arg) {
 			long mc = (c1 + count)>>1;
 			int index = map(mc, -120, 120, 0, SIZE);
 			pthread_mutex_lock(&m);
-			values[index] =+ UPDATERATE*(dist-values[index]);
+				values[index] =+ UPDATERATE*(dist-values[index]);
 			
 			//printf("[%03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d %03.d ]\n",values[ 0 ], values[ 1 ], values[ 2 ], values[ 3 ], values[ 4 ], values[ 5 ], values[ 6 ], values[ 7 ], values[ 8 ], values[ 9 ], values[ 10 ], values[ 11 ], values[ 12 ], values[ 13 ], values[ 14 ], values[ 15 ], values[ 16 ], values[ 17 ], values[ 18 ], values[ 19 ], values[ 20 ], values[ 21 ], values[ 22 ], values[ 23 ], values[ 24 ], values[ 25 ], values[ 26 ], values[ 27 ], values[ 28 ], values[ 29 ]);
 			pthread_mutex_unlock(&m);
 
-
 		}
-		if(count < -100 && sens == -1){
+		if(count < -BORNE && sens == -1){
 			sens = 1;
 			wiringPiI2CWriteReg16(driver,CCW,SPEED);
 		}
-		else if( count > 100 && sens == 1){
+		else if( count > BORNE && sens == 1){
 			sens = -1;
 			wiringPiI2CWriteReg16(driver,CW,SPEED);
 		}
